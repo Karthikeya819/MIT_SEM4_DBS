@@ -156,6 +156,25 @@ begin
 		dbms_output.put_line('Updated all Grade Letters');
 end;
 /
+6.
+declare
+	max_gpa studenttable.GPA%type;
+	st_gpa studenttable.GPA%type;
+	max_rollno studenttable.rollno%type;
+begin
+	max_gpa := 0;
+	for i in 1..5 loop
+		select GPA into st_gpa from StudentTable where RollNo = i;
+		if st_gpa > max_gpa then
+			max_gpa := st_gpa;
+			max_rollno := i;
+		end if;
+	end loop;
+	dbms_output.put_line(max_gpa);
+	dbms_output.put_line(max_rollno);
+end;
+/
+
 	
 
 

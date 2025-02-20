@@ -1,0 +1,79 @@
+declare
+	grade char(1);
+begin
+	grade:=&g;
+IF grade = 'A' THEN
+	dbms_output.put_line('Excellent');
+ELSIF grade = 'B' THEN
+	dbms_output.put_line('Very Good');
+ELSIF grade = 'C' THEN
+	dbms_output.put_line('Good');
+ELSIF grade = 'D' THEN
+	dbms_output.put_line('Fair');
+ELSIF grade = 'E' THEN
+	dbms_output.put_line('Poor');
+ELSE
+	dbms_output.put_line('No such Grade');
+END IF;
+END;
+/
+
+Declare
+	Insufficient_Balance Exception;
+	Amount account.balance%type;
+	TempAmount account.balance%type;
+	AccountNo account.account_number%type;
+Begin
+	AccountNo := &AccountNumber;
+	Amount := &Amount;
+	select balance into TempAmount from account where account_number=AccountNo;
+	TempAmount := TempAmount - Amount;
+IF TempAmount >= 500 THEn
+	update account set balance = TempAmount where account_number=AccountNo;
+ELSE
+	RAISE Insufficient_Balance;
+END IF;
+EXCEPTION
+	when Insufficient_Balance Then
+		dbms_output.put_line('Insufficient Balance');
+	when others then
+		dbms_output.put_line('Error');
+END;
+/
+
+1.
+Declare
+	In_RollNo StudentTable.ROLLNO%type;
+	Out_GPA StudentTable.GPA%type;
+Begin
+	In_RollNo := &RollNo;
+	select GPA into Out_GPA from StudentTable where Rollno = In_RollNo;
+	dbms_output.put_line(Out_GPA);
+END;
+/
+
+2.
+Declare
+	In_RollNo StudentTable.ROLLNO%type;
+	Out_GPA StudentTable.GPA%type;
+Begin
+	In_RollNo := &RollNo;
+	select GPA into Out_GPA from StudentTable where Rollno = In_RollNo;
+	IF Out_GPA >= 0 and Out_GPA < 4 THEN
+		dbms_output.put_line('F');
+	ELSIF Out_GPA >= 4 and Out_GPA < 5 THEN
+		dbms_output.put_line('E');
+	ELSIF Out_GPA >= 5 and Out_GPA < 6 THEN
+		dbms_output.put_line('D');
+	ELSIF Out_GPA >= 6 and Out_GPA < 7 THEN
+		dbms_output.put_line('C');
+	ELSIF Out_GPA >= 7 and Out_GPA < 8 THEN
+		dbms_output.put_line('B');
+	ELSIF Out_GPA >= 8 and Out_GPA < 9 THEN
+		dbms_output.put_line('A');
+	ELSE
+		dbms_output.put_line('hfdhewgb');
+END IF;
+END;
+/
+	

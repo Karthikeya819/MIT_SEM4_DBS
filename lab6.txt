@@ -52,6 +52,13 @@ Begin
 END;
 /
 
+create table StudentTable(RollNo number(2),GPA number(2,1));
+insert into StudentTable values(1,5.8);
+insert into StudentTable values(2,6.5);
+insert into StudentTable values(3,3.4);
+insert into StudentTable values(4,7.8);
+insert into StudentTable values(5,9.5);
+
 2.
 Declare
 	In_RollNo StudentTable.ROLLNO%type;
@@ -71,9 +78,19 @@ Begin
 		dbms_output.put_line('B');
 	ELSIF Out_GPA >= 8 and Out_GPA < 9 THEN
 		dbms_output.put_line('A');
+	ELSIF Out_GPA >= 9 and Out_GPA <= 10 THEN
+		dbms_output.put_line('A+');
 	ELSE
 		dbms_output.put_line('hfdhewgb');
 END IF;
 END;
 /
+3.
+declare
+	DateOut DATE;
+	DateIn DTAE;
+begin
+	DateOut := '&Date_Out';
+	DateIn := '&Date_In';
+	dbms_output
 	

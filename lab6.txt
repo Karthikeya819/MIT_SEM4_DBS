@@ -88,9 +88,75 @@ END;
 3.
 declare
 	DateOut DATE;
-	DateIn DTAE;
+	DateIn DATE;
+	NoOfDays number(3);
+	Price number(4);
 begin
 	DateOut := '&Date_Out';
 	DateIn := '&Date_In';
-	dbms_output
+	NoOfDays := DateIn - DateOut;
+	if NoOfDays <= 7 then
+		Price:=0;
+	elsif NoOfDays >= 8 and NoOfDays < 15 then
+		Price := NoOfDays * 1;
+	elsif NoOfDays >= 16 and NoOfDays < 30 then
+		Price := NoOfDays * 2;
+	else
+		Price := 5;
+	end if;
+	dbms_output.put_line(Price);
+end;
+/
+4.
+declare
+	i number(1);
+	Out_GPA StudentTable.GPA%type;
+begin
+	i := 1;
+	loop
+		select GPA into Out_GPA from StudentTable where ROLLNO = i;
+		dbms_output.put_line(Out_GPA);
+		i := i + 1;
+		if i > 5 then exit;
+		end if;
+	end loop;
+end;
+/
+5.
+alter table StudentTable add (LetterGrade varchar(2));
+declare
+	i number(1);
+	Out_GPA studenttable.GPA%type;
+	St_LetterGrade varchar(2);
+begin
+	i := 1;
+	while i < 6
+		loop
+			select GPA into Out_GPA from StudentTable where rollno=i;
+			IF Out_GPA >= 0 and Out_GPA < 4 THEN
+				St_LetterGrade := 'F';
+			ELSIF Out_GPA >= 4 and Out_GPA < 5 THEN
+				St_LetterGrade := 'E';
+			ELSIF Out_sGPA >= 5 and Out_GPA < 6 THEN
+				St_LetterGrade := 'D';
+			ELSIF Out_GPA >= 6 and Out_GPA < 7 THEN
+				St_LetterGrade := 'C';
+			ELSIF Out_GPA >= 7 and Out_GPA < 8 THEN
+				St_LetterGrade := 'B';
+			ELSIF Out_GPA >= 8 and Out_GPA < 9 THEN
+				St_LetterGrade := 'A';
+			ELSIF Out_GPA >= 9 and Out_GPA <= 10 THEN
+				St_LetterGrade := 'A+';
+			ELSE
+				dbms_output.put_line('Grade Not Found!');
+			end if;
+			update StudentTable set LetterGrade=St_LetterGrade where rollno=i;
+			i := i + 1;
+		end loop;
+		dbms_output.put_line('Updated all Grade Letters');
+end;
+/
+	
+
+
 	

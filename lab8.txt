@@ -1,0 +1,145 @@
+ex1)
+DECLARE
+	dname CONSTANT student.dept_name%TYPE := 'History';
+BEGIN
+	DELETE FROM student WHERE dept_name = dname;
+	IF SQL%FOUND THEN
+		DBMS_OUTPUT.PUT_LINE ('Delete succeeded for department: '|| dname);
+	ELSE
+		DBMS_OUTPUT.PUT_LINE ('No students of department: ' || dname);
+	END IF;
+END;
+/
+
+ex2)
+declare
+	dname student.dept_name%type := 'Comp. Sci.';
+	cursor c1 is select name from student where dept_name = dname;
+	sname Student.name%type;
+begin
+	dbms_output.put_line('------------------------------');
+	open c1;
+		loop
+			fetch c1 into sname;
+			exit when c1%NOTFOUND;
+			dbms_output.put_line('Name: ' || sname);
+		end loop;
+	close c1;
+	dbms_output.put_line('-----------------------------');
+end;
+/
+
+ex3)
+declare
+	cursor c1 is select * from Department;
+	max_Budget Department.Budget%Type :=0;
+	max_Budget_name Department.dept_name%TYPE;
+begin
+	for dept in c1 loop
+		if dept.Budget > max_Budget then
+			max_Budget := dept.Budget;
+			max_Budget_name := DEPT.dept_name;
+		end if;
+	end loop;
+	dbms_output.put_line('Max Budget: '||max_Budget||'Max Budget Dept: ' ||max_Budget_name);
+end;
+/
+ex4)
+declare
+	cursor c1 is select * from Department for update;
+begin
+	for dept in c1 loop
+		if dept.Budget <= 70000 then
+			update Department set Budget = Budget*1.2 where current of c1;
+		elsif dept.Budget > 7000 and dept.Budget <= 100000 then
+			update Department set Budget = Budget*1.15 where current of c1;
+		else
+			update Department set Budget = Budget*1.1 where current of c1;
+		end if;
+	end loop;
+end;
+/
+
+ex5)
+declare
+	cursor c(dname instructor.dept_name%TYPE) is select * from Instructor where dept_name = dname;
+begin
+	for tmp in c('Comp. Sci.') loop
+		dbms_output.put_line('EMP_No: '||tmp.ID); 
+		dbms_output.put_line('EMP_Name: '||tmp.name); 
+		dbms_output.put_line('EMP_Dept: '||tmp.dept_name); 
+		dbms_output.put_line('EMP_Salary:'||tmp.salary);
+		DBMS_OUTPUT.PUT_LINE( '-------------------------------');
+	end loop;
+end;
+/
+
+LAB Excertsices:
+
+1)
+create table salary_raise(Instructor_Id varchar(5),Raise_date DATE, Raise_amt Number(8,2));
+declare
+	cursor c(sdname Department.DEPT_NAME%type) is select * from Instructor where  DEPT_NAME=sdname for update;
+	Today_Date DATE:= '27-FEB-2025';
+begin
+	for ins in c('&DeptName') loop
+		insert into salary_raise values(ins.id,Today_Date,ins.salary*0.05);
+		update Instructor set salary=salary*1.05 where current of c;
+	end loop;
+end;
+/
+
+2)
+declare
+	cursor c is select * from student order by tot_cred ASC;
+	st_id student.ID%type;
+	st_name student.name%type;
+	st_DEPT_NAME student.DEPT_NAME%type;
+	st_TOT_CRED student.TOT_CRED%type;
+begin
+	open c;
+	for i in 1..10 loop
+		fetch c into st_id,st_name,st_DEPT_NAME,st_TOT_CRED;
+		dbms_output.put_line('Name:'||st_name||'Dept Name:'||st_DEPT_NAME||'Tot Credit:'||st_TOT_CRED);
+	end loop;
+end;
+/
+
+3)
+declare
+    cursor course_cursor is
+        select c.course_id, 
+               c.title, 
+               c.dept_name, 
+               c.credits, 
+               i.name AS instructor_name, 
+               cl.building, 
+               cl.room_number, 
+               sec.time_slot_id, 
+               COUNT(t.ID) AS tot_student_no
+        FROM course c
+        JOIN section sec ON c.course_id = sec.course_id
+        JOIN classroom cl ON sec.building = cl.building AND sec.room_number = cl.room_number
+        JOIN teaches t ON sec.course_id = t.course_id AND sec.sec_id = t.sec_id AND sec.semester = t.semester AND sec.year = t.year
+        JOIN instructor i ON t.ID = i.ID
+        GROUP BY c.course_id, c.title, c.dept_name, c.credits, i.name, cl.building, cl.room_number, sec.time_slot_id;
+
+BEGIN
+    FOR course_rec IN course_cursor LOOP
+        DBMS_OUTPUT.PUT_LINE('Course ID: ' || course_rec.course_id);
+        DBMS_OUTPUT.PUT_LINE('Title: ' || course_rec.title);
+        DBMS_OUTPUT.PUT_LINE('Department: ' || course_rec.dept_name);
+        DBMS_OUTPUT.PUT_LINE('Credits: ' || course_rec.credits);
+        DBMS_OUTPUT.PUT_LINE('Instructor: ' || course_rec.instructor_name);
+        DBMS_OUTPUT.PUT_LINE('Building: ' || course_rec.building);
+        DBMS_OUTPUT.PUT_LINE('Room Number: ' || course_rec.room_number);
+        DBMS_OUTPUT.PUT_LINE('Time Slot ID: ' || course_rec.time_slot_id);
+        DBMS_OUTPUT.PUT_LINE('Total Students Registered: ' || course_rec.tot_student_no);
+        DBMS_OUTPUT.PUT_LINE('------------------------------------------------');
+    END LOOP;
+END;
+/
+
+		
+		
+			

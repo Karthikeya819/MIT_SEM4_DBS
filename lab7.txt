@@ -174,6 +174,46 @@ begin
 	dbms_output.put_line(max_rollno);
 end;
 /
+7.
+create table Product_master(product_no varchar(7),sell_price number(5));
+create table Old_price_table(product_no varchar(7),date_change DATE,Old_Price number(5));
+
+declare
+	product_id Product_master.product_no%type := 'p00001';
+	Today_Date DATE := '27-FEB-2025';
+	product_price Product_master.sell_price%type;
+begin
+	select sell_price into product_price from Product_master where product_no = product_id;
+	if(product_price < 4000) then
+		update Product_master set sell_price = 4000 where product_no = product_id;
+		insert into Old_price_table values(product_id, Today_Date, product_price);
+	end IF;
+end;
+/
+
+8.
+declare
+	a int;
+	b int;
+	operator char(1);
+	Opeartor_Invalid Exception;
+begin
+	a := &a;
+	b := &b;
+	operator := '&operator';
+	if(operator not in ('+','-','*','/')) then
+		raise Opeartor_Invalid;
+	end if;
+	if(b = 0 and operator = '/') then
+		raise ZERO_DIVIDE;
+	end if;
+Exception
+	when Opeartor_Invalid then
+		dbms_output.put_line('Operator Entered Invalid');
+	when ZERO_DIVIDE then
+		dbms_output.put_line('Zero Division Error!');
+end;
+/
 
 	
 

@@ -60,10 +60,14 @@ public class LoginPage extends Application{
         mystage.setScene(myscene);
         mystage.show();
     }
-    public void Login() throws SQLException{
+    public void Login(ActionEvent event) throws SQLException,IOException{
         String username = TextFieldUserName.getText();
         String password = PasswordFieldPassword.getText();
         ErrorMsgLabel.setText("");
+
+        // Remove
+        username = "Karthikeya819";
+        password = "123";
 
         if(username == "" || password == ""){
             ErrorMsgLabel.setText("Incorrect Username/Password");
@@ -80,8 +84,24 @@ public class LoginPage extends Application{
         ResultSet rs = this.db.executeQuery(query);
         
         if(rs.next()){
-            System.out.println("Login Sucsessfull!");
-            System.out.println("ID: " + rs.getInt("user_id") +", UserName: " + rs.getString("username") +", Role: " + rs.getInt("role"));
+            int role = rs.getInt("role");
+
+            if(role == 1){
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("UserMainPage.fxml"));
+                Parent root = loader.load();
+                UserMainPage userpageController = loader.getController();
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                userpageController.setDB(this.db);
+                userpageController.setStage(stage);
+                userpageController.passInfo(rs.getInt("user_id"),rs.getString("username"));
+                scene = new Scene(root);
+                stage.setScene(scene);
+                stage.show();
+                userpageController.initialize();
+            }
+            
+            //System.out.println("Login Sucsessfull!");
+            //System.out.println("ID: " + rs.getInt("user_id") +", UserName: " + rs.getString("username") +", Role: " + rs.getInt("role"));
         }else{
             ErrorMsgLabel.setText("Incorrect Username/Password");
             TextFieldUserName.setText("");

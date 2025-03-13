@@ -68,7 +68,7 @@
                   <Insets left="103.0" />
                </GridPane.margin>
             </Button>
-            <Button mnemonicParsing="false" onMouseClicked="#Login" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Button mnemonicParsing="false" onAction="#Login" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <font>
                   <Font size="14.0" />
                </font>

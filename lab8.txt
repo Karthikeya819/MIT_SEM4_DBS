@@ -140,6 +140,68 @@ BEGIN
 END;
 /
 
+4)
+declare
+	cursor fail_students is select T.ID,S.TOT_CRED from Takes T JOIN Student S on T.ID = S.ID where T.COURSE_ID = 'CS-101' and S.TOT_CRED < 30;
+begin
+	for student in fail_students loop
+		DBMS_OUTPUT.PUT_LINE('Removing Student ID ' || student.ID ||' from Takes.');
+		delete from Takes where Takes.ID = student.ID and Takes.COURSE_ID = 'CS-101';
+	END LOOP;
+END;
+/
+
+5)
+declare
+	cursor stu_grades is select * from StudentTable for UPDATE;
+	stu_let StudentTable.LETTERGRADE%type;
+begin
+	for stu in stu_grades loop
+		IF stu.GPA >= 0 and stu.GPA < 4 THEN
+			stu_let := 'F';
+		ELSIF stu.GPA >= 4 and stu.GPA < 5 THEN
+			stu_let := 'E';
+		ELSIF stu.GPA >= 5 and stu.GPA < 6 THEN
+			stu_let := 'D';
+		ELSIF stu.GPA >= 6 and stu.GPA < 7 THEN
+			stu_let := 'C';
+		ELSIF stu.GPA >= 7 and stu.GPA < 8 THEN
+			stu_let := 'B';
+		ELSIF stu.GPA >= 8 and stu.GPA < 9 THEN
+			stu_let := 'A';
+		ELSIF stu.GPA >= 9 and stu.GPA <= 10 THEN
+			stu_let := 'A+';
+		ELSE
+			dbms_output.put_line('Grade Not Found!');
+		end if;
+		update StudentTable set LETTERGRADE = stu_let where current of stu_grades;
+		END LOOP;
+END;
+/
+
+6)
+declare
+	cursor course_Inst (course_name Course.TITLE%type) is select I.* from Instructor I join teaches T on I.ID = T.ID join Course C on C.COURSE_ID = T.COURSE_ID where C.TITLE = course_name;
+	st_course_name Course.TITLE%type;
+begin
+	st_course_name := '&CourseName';
+	for Ins in course_Inst(st_course_name) loop
+		DBMS_OUTPUT.PUT_LINE('ID: ' || Ins.ID || ' Name: ' || Ins.Name);
+	END LOOP;
+END;
+/
+
+7)
+declare
+	cursor stu_spec_list is select distinct T.ID from takes T join Teaches S on T.Course_ID = S.Course_ID and T.SEC_ID = S.SEC_ID and S.YEAR = T.YEAR and S.SEMESTER = T.SEMESTER join Advisor A on A.S_ID = T.ID where A.I_ID = S.ID;
+begin
+	for stu in stu_spec_list loop
+		DBMS_OUTPUT.PUT_LINE(stu.ID);
+	end loop;
+end;
+/
+		
+
 		
 		
 			

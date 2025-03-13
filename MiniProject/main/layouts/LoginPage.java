@@ -36,6 +36,10 @@ public class LoginPage extends Application{
     @FXML
     private PasswordField PasswordFieldPassword;
 
+    public void setDB(DBConnection db){
+        this.db = db;
+    }
+
     public static void main(String args[]){
         launch(args);
     }
@@ -85,9 +89,18 @@ public class LoginPage extends Application{
         }
     }
     public void Register(ActionEvent event) throws IOException{
-        Parent root = FXMLLoader.load(getClass().getResource("RegisterPage.fxml"));
+        // Parent root = FXMLLoader.load(getClass().getResource("RegisterPage.fxml"));
         
+        // stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        // scene = new Scene(root);
+        // stage.setScene(scene);
+        // stage.show();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("RegisterPage.fxml"));
+        Parent root = loader.load();
+        RegisterPage registerController = loader.getController();
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        registerController.setDB(this.db);
+        registerController.setStage(stage);
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();

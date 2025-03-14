@@ -69,6 +69,10 @@ public class LoginPage extends Application{
         username = "Karthikeya819";
         password = "123";
 
+        //Admin
+        username = "admin";
+        password = "admin";
+
         if(username == "" || password == ""){
             ErrorMsgLabel.setText("Incorrect Username/Password");
             return;
@@ -97,7 +101,20 @@ public class LoginPage extends Application{
                 scene = new Scene(root);
                 stage.setScene(scene);
                 stage.show();
-                userpageController.initialize();
+                userpageController.dk_initialize();
+            }
+            if(role == 0){
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("AdminMainPage.fxml"));
+                Parent root = loader.load();
+                AdminMainPage adminpageController = loader.getController();
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                adminpageController.setDB(this.db);
+                adminpageController.setStage(stage);
+                adminpageController.passInfo(rs.getInt("user_id"),rs.getString("username"));
+                scene = new Scene(root);
+                stage.setScene(scene);
+                stage.show();
+                adminpageController.dk_initialize();
             }
             
             //System.out.println("Login Sucsessfull!");
@@ -109,12 +126,6 @@ public class LoginPage extends Application{
         }
     }
     public void Register(ActionEvent event) throws IOException{
-        // Parent root = FXMLLoader.load(getClass().getResource("RegisterPage.fxml"));
-        
-        // stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        // scene = new Scene(root);
-        // stage.setScene(scene);
-        // stage.show();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("RegisterPage.fxml"));
         Parent root = loader.load();
         RegisterPage registerController = loader.getController();

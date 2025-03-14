@@ -19,23 +19,26 @@ import utils.DBConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class Movie {
+class Movie{
+    private int movie_id;
     private String title;
     private String duration;
     private String rating;
     private String imageUrl;
 
-    public Movie(String title, String duration, String rating, String imageUrl) {
+    public Movie(int movie_id,String title, String duration, String rating, String imageUrl){
+        this.movie_id = movie_id;
         this.title = title;
         this.duration = duration;
         this.rating = rating;
         this.imageUrl = imageUrl;
     }
 
-    public String getTitle() { return title; }
-    public String getDuration() { return duration; }
-    public String getRating() { return rating; }
-    public String getImageUrl() { return imageUrl; }
+    public String getTitle(){ return title; }
+    public String getDuration(){ return duration; }
+    public String getRating(){ return rating; }
+    public String getImageUrl(){ return imageUrl; }
+    public int getId(){return movie_id;}
 }
 
 public class UserMainPage{
@@ -61,18 +64,28 @@ public class UserMainPage{
         this.mst_username = mst_username;
         //TextFieldUsername.setText(mst_username);
     }
-    public void initialize(){
+    public void dk_initialize() throws SQLException{
         TextFieldUsername.setText(this.mst_username);
         ListViewScreenings.lookupAll(".scroll-bar").forEach(scrollBar -> {
             scrollBar.setOpacity(0);
             scrollBar.setMouseTransparent(true);
         });
-        ObservableList<Movie> movies = FXCollections.observableArrayList(
-                new Movie("Mirchi", "2h 28m", "8.8", "https://csv2contact.groupspend.in/img/test.jpg"),
-                new Movie("Maya Bazar", "2h 49m", "8.6", "https://csv2contact.groupspend.in/img/test.jpg"),
-                new Movie("Aagadu", "2h 32m", "9.0", "https://csv2contact.groupspend.in/img/test.jpg"),
-                new Movie("Jersey", "2h 42m", "7.9", "https://csv2contact.groupspend.in/img/test.jpg")
-        );
+        String query = "SELECT * FROM mst_movies";
+        if(this.db == null)this.db = new DBConnection();
+        if(this.db == null){
+            // ErrorMsgLabel.setText("Database Connection Failed!");
+            return;
+        }
+        ObservableList<Movie> movies = FXCollections.observableArrayList();
+        ResultSet rs = this.db.executeQuery(query);
+        while(rs.next()){
+            int movie_id = rs.getInt("movie_id");
+            String title = rs.getString("title");
+            int duration = rs.getInt("duration");
+            float rating = rs.getFloat("rating");
+            String img_url = rs.getString("img_url");
+            movies.add(new Movie(movie_id,title, duration + " min", String.valueOf(rating), img_url));
+        }
         ListViewScreenings.setItems(movies);
         ListViewScreenings.setOrientation(Orientation.HORIZONTAL);
         ListViewScreenings.setCellFactory(lv -> new MovieCell());
@@ -111,9 +124,6 @@ class MovieCell extends ListCell<Movie> {
             movieBox.setSpacing(10);
             movieBox.setStyle("-fx-alignment: center;");
             setGraphic(movieBox);
-            // this.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
-            //     System.out.println("Cell Size -> Width: " + newBounds.getWidth() + ", Height: " + newBounds.getHeight());
-            // });
         }
     }
 }

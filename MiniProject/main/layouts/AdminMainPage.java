@@ -51,6 +51,11 @@ public class AdminMainPage{
     private TextField mv_tf4 = new TextField();
     private TextField mv_tf5 = new TextField();
     private TextField mv_tf6 = new TextField();
+
+    private TextField sc_tf1 = new TextField();
+    private TextField sc_tf2 = new TextField();
+    private TextField sc_tf3 = new TextField();
+    private TextField sc_tf4 = new TextField();
     
     public void setStage(Stage stage){
         this.mystage = stage;
@@ -69,9 +74,15 @@ public class AdminMainPage{
         mv_tf4.setPromptText("Duration");
         mv_tf5.setPromptText("Rating");
         mv_tf6.setPromptText("Image Url");
+
+        sc_tf1.setPromptText("Movie Id");
+        sc_tf2.setPromptText("Screen Number");
+        sc_tf3.setPromptText("Show Time");
+        sc_tf4.setPromptText("Seats");
+
         LabelUsername.setText(this.mst_username);
-        //this.onGenresClicked();
-        this.onMoviesClicked();
+        this.onGenresClicked();
+        //this.onMoviesClicked();
     }
 
     public static void main(String args[]){
@@ -138,9 +149,14 @@ public class AdminMainPage{
         List<Screening> screenings = new ArrayList<>();
         try{
             if(this.db == null)this.db = new DBConnection();
-            ResultSet rs = db.executeQuery("SELECT screen_number, show_time, available_seats FROM Screenings");
+            ResultSet rs = db.executeQuery("SELECT * FROM mst_screenings;");
             while(rs.next()){
-                screenings.add(new Screening(rs.getInt("screen_number"), rs.getTimestamp("show_time"),rs.getInt("available_seats")));
+                int screening_id = rs.getInt("screening_id");
+                int movie_id = rs.getInt("movie_id");
+                String screen_number = rs.getString("screen_number");
+                String show_time = rs.getString("show_time");
+                int available_seats = rs.getInt("available_seats");
+                screenings.add(new Screening(screening_id,movie_id,screen_number,show_time,available_seats));
             }
         } catch(SQLException e){ e.printStackTrace(); }
         return screenings;
@@ -188,7 +204,7 @@ public class AdminMainPage{
             } 
             else if(item instanceof Screening){
                 Screening screening =(Screening) item;
-                Label screeningLabel = new Label("Screen: " + screening.getScreenNumber());
+                Label screeningLabel = new Label(screening.toString());
                 cellContainer.getChildren().addAll(screeningLabel, deleteButton);
             }
 
@@ -208,8 +224,8 @@ public class AdminMainPage{
                 db.executeUpdate("DELETE FROM mst_movies WHERE movie_id = " + movieId + ";");
             } 
             else if(item instanceof Screening){
-                int screenNumber =((Screening) item).getScreenNumber();
-                db.executeUpdate("DELETE FROM Screenings WHERE screen_number = " + screenNumber);
+                int screeningId =((Screening) item).getScreeningId();
+                db.executeUpdate("DELETE FROM mst_screenings WHERE screening_id = " + screeningId);
             }
         }
     }
@@ -234,6 +250,9 @@ public class AdminMainPage{
                 updateListView1("Genres");
             }catch(SQLException e){e.printStackTrace();}
         });
+        fp1.getChildren().clear();
+        fp1.setAlignment(Pos.TOP_LEFT);
+        fp1.getChildren().addAll(lb3,tf1,bt1);
     }
 
     @FXML
@@ -273,8 +292,28 @@ public class AdminMainPage{
         lb1.setText("Manage Screenings");
         lb2.setText("Screenings List:");
         lb3.setText("New Screenings:");
-        bt1.setText("Add Screenings");
-        //updateListView1("Screenings");
+        bt1.setText("Add Screening");
+        fp1.getChildren().clear();
+        bt1.setOnAction(event->{
+            int movie_id = Integer.valueOf(sc_tf1.getText());
+            String screen_number = sc_tf2.getText();
+            String show_time = sc_tf3.getText();
+            int available_seats = Integer.valueOf(sc_tf4.getText());
+            if(this.db == null)this.db = new DBConnection();
+            String query = String.format("INSERT into mst_screenings(movie_id,screen_number,show_time,available_seats) VALUES(%d,'%s','%s',%d);",movie_id,screen_number,show_time,available_seats);
+            int rowsAffected = db.executeUpdate(query);
+            if(rowsAffected >= 1){
+                sc_tf1.setText("");
+                sc_tf2.setText("");
+                sc_tf3.setText("");
+                sc_tf4.setText("");
+            }
+            updateListView1("Screenings");
+        });
+        fp1.setAlignment(Pos.CENTER);
+        fp1.getChildren().addAll(lb3,new VBox(5,new HBox(20,sc_tf1,sc_tf2),new HBox(20,sc_tf3,sc_tf4,bt1)));
+        updateListView1("Screenings");
+
     }
 
 }
@@ -295,23 +334,30 @@ class Genre{
 }
 
 class Screening{
-    private int screenNumber;
-    private Timestamp showTime;
+    private String screenNumber;
+    private String showTime;
     private int availableSeats;
+    private int movieId;
+    private int screeningId;
 
-    public Screening(int screenNumber, Timestamp showTime, int availableSeats){
+
+    public Screening(int screeningId,int movieId,String screenNumber,String showTime, int availableSeats){
+        this.screeningId = screeningId;
+        this.movieId = movieId;
         this.screenNumber = screenNumber;
         this.showTime = showTime;
         this.availableSeats = availableSeats;
     }
 
-    public int getScreenNumber(){ return screenNumber; }
-    public Timestamp getShowTime(){ return showTime; }
+    public String getScreenNumber(){ return screenNumber; }
+    public String getShowTime(){ return showTime; }
     public int getAvailableSeats(){ return availableSeats; }
+    public int getScreeningId(){ return screeningId; }
+    public int getMovieId(){ return movieId; }
 
     @Override
-    public String toString(){  
-        return "Screen: " + screenNumber + ", Time: " + showTime + ", Seats: " + availableSeats;
+    public String toString(){ 
+        return String.format("Id: %d  Movie: %d  Screen: %s  Time: %s  Seats: %d",screeningId,movieId,screenNumber,showTime,availableSeats);
     }
 }
 

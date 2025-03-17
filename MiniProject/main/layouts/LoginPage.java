@@ -70,8 +70,8 @@ public class LoginPage extends Application{
         password = "123";
 
         //Admin
-        username = "admin";
-        password = "admin";
+        // username = "admin";
+        // password = "admin";
 
         if(username == "" || password == ""){
             ErrorMsgLabel.setText("Incorrect Username/Password");

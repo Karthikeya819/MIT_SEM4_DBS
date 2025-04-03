@@ -1,0 +1,175 @@
+Ex)
+replace procedure hello_dk is
+begin
+	DBMS_OUTPUT.PUT_LINE('Hello world!');
+end;
+/
+
+Lab Excersices
+
+1)
+create procedure test is begin
+	DBMS_OUTPUT.PUT_LINE('Good Day to You');
+end;
+/
+
+declare
+begin
+	test;
+end;
+/
+
+2)
+create or replace procedure print_dept(st_dept_name Instructor.DEPT_NAME%type) is
+	cursor test is select * from Instructor where DEPT_NAME = st_dept_name;
+	cursor test1 is select * from Course where DEPT_NAME = st_dept_name;
+
+	begin
+	for emp in test loop
+		DBMS_OUTPUT.PUT_LINE(emp.NAME);
+	end loop;
+	for cour in test1 loop
+		DBMS_OUTPUT.PUT_LINE(cour.TITLE);
+	end loop;
+		
+end;
+/
+
+declare begin
+	print_dept('&DepartmentName');
+end;
+/
+
+temp:
+select max(count) from (select T.course_id,count(T.ID) as count from takes T join course C on T.COURSE_ID = C.COURSE_ID where C.dept_name='Finance' group by T.course_id);
+
+3)
+create or replace procedure course_popular(st_dept_name Instructor.DEPT_NAME%type) is
+	st_course_id Course.course_id%type;
+	begin
+		 SELECT a.course_id INTO st_course_id FROM(SELECT T.course_id, COUNT(T.ID) AS count FROM takes T JOIN course C ON T.course_id = C.course_id WHERE C.dept_name = st_dept_name GROUP BY T.course_id ORDER BY COUNT(T.ID) DESC ) a  WHERE ROWNUM = 1;
+		DBMS_OUTPUT.PUT_LINE(st_course_id);
+	end;
+/
+
+declare
+	cursor depts is select * from department;
+begin
+	for dept in depts loop
+		DBMS_OUTPUT.PUT(dept.dept_name || ': ');
+		course_popular(dept.dept_name);
+	end loop;
+end;
+/
+
+4)
+create or replace procedure print_dept_det(st_dept_name Instructor.DEPT_NAME%type) is
+	cursor test is select * from student where DEPT_NAME = st_dept_name;
+	cursor test1 is select * from Course where DEPT_NAME = st_dept_name;
+
+	begin
+		for stu in test loop
+			DBMS_OUTPUT.PUT_LINE(stu.NAME);
+		end loop;
+		for cour in test1 loop
+			DBMS_OUTPUT.PUT_LINE(cour.TITLE);
+		end loop;
+	end;
+/
+
+declare begin
+	print_dept_det('&DepartmentName');
+end;
+/
+
+5)
+create or replace function square(a integer) return integer is begin
+	return a*a;
+end;
+/
+
+declare
+	ans integer;
+begin
+	ans := square(&Number);
+	DBMS_OUTPUT.PUT_LINE('The Square is ' || ans);
+end;
+/
+
+6)
+create or replace function department_highest(st_dept_name In Instructor.DEPT_NAME%type) return varchar is
+	st_high Instructor.SALARY%type;
+	cursor c(st_salary Instructor.SALARY%type,st_dept_name Instructor.DEPT_NAME%type) is select * from Instructor where dept_name=st_dept_name and salary=st_salary;
+	st_ret varchar(50) := '';
+	begin
+	select salary into st_high  from (select dept_name,max(salary) as salary from Instructor group by dept_name) where dept_name=st_dept_name;
+	for emp in c(st_high,st_dept_name) loop
+		st_ret := st_ret || emp.name || ' ';
+	end loop;
+	return st_ret;
+end;
+/
+
+declare begin
+	DBMS_OUTPUT.PUT_LINE(department_highest('&DepartmentName'));
+end;
+/
+
+7)
+CREATE OR REPLACE PACKAGE dept_package AS
+  PROCEDURE list_instructors(st_dept_name IN Instructor.DEPT_NAME%TYPE);
+  FUNCTION max_salary(st_dept_name IN Instructor.DEPT_NAME%TYPE) RETURN NUMBER;
+END dept_package;
+/
+CREATE OR REPLACE PACKAGE BODY dept_package AS
+  PROCEDURE list_instructors(st_dept_name IN Instructor.DEPT_NAME%TYPE) IS
+  BEGIN
+    FOR emp IN (SELECT name FROM Instructor WHERE dept_name = st_dept_name) LOOP
+      DBMS_OUTPUT.PUT_LINE(emp.name);
+    END LOOP;
+  END list_instructors;
+  FUNCTION max_salary(st_dept_name IN Instructor.DEPT_NAME%TYPE) RETURN NUMBER IS
+    v_max_salary NUMBER;
+  BEGIN
+    SELECT MAX(salary) 
+    INTO v_max_salary
+    FROM Instructor
+    WHERE dept_name = st_dept_name;
+    RETURN v_max_salary;
+  END max_salary;
+END dept_package;
+/
+DECLARE
+  v_max_salary NUMBER;
+BEGIN
+  dbms_output.put_line('Instructors in the Finance department:');
+  dept_package.list_instructors('Finance');
+  v_max_salary := dept_package.max_salary('Finance');
+  dbms_output.put_line('The maximum salary in the Computer Finance is: ' || v_max_salary);
+END;
+/
+
+8)
+CREATE OR REPLACE PROCEDURE calculate_interest(
+  p_principal IN NUMBER,
+  p_rate IN NUMBER,
+  p_years IN NUMBER,
+  p_simple_interest OUT NUMBER,
+  p_compound_interest OUT NUMBER,
+  p_total_sum IN OUT NUMBER
+) IS
+BEGIN
+  p_simple_interest := (p_principal * p_rate * p_years) / 100;
+  p_compound_interest := p_principal * (POWER(1 + p_rate / 100, p_years)) - p_principal;
+  p_total_sum := p_principal + p_simple_interest;
+END;
+/
+
+
+
+	
+		
+		
+		
+	
+

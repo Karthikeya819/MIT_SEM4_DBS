@@ -66,8 +66,8 @@ public class LoginPage extends Application{
         ErrorMsgLabel.setText("");
 
         // Remove
-        username = "Karthikeya819";
-        password = "123";
+        // username = "Karthikeya819";
+        // password = "123";
 
         //Admin
         // username = "admin";

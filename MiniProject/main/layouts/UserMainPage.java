@@ -54,7 +54,7 @@ public class UserMainPage{
     @FXML
     private Label TextFieldUsername;
     @FXML
-    private ListView<Movie> ListViewScreenings;
+    private ListView<Object> ListViewScreenings;
     @FXML
     private FlowPane fp1;
     @FXML
@@ -63,6 +63,14 @@ public class UserMainPage{
     private Button bt1;
     @FXML
     private TextField tf1;
+    @FXML
+    private FlowPane fp2;
+    @FXML
+    private HBox hb1;
+    @FXML
+    private Label lb1;
+    @FXML
+    private Label lb2;
 
     public void setStage(Stage stage) {
         this.mystage = stage;
@@ -77,6 +85,12 @@ public class UserMainPage{
     }
     public void dk_initialize() throws SQLException{
         TextFieldUsername.setText(this.mst_username);
+        LoadScreenings();
+    }
+
+    public void LoadScreenings() throws SQLException{
+        lb1.setText("Book Tickets");
+        lb2.setText("Current Screenings:");
         ListViewScreenings.lookupAll(".scroll-bar").forEach(scrollBar -> {
             scrollBar.setOpacity(0);
             scrollBar.setMouseTransparent(true);
@@ -88,7 +102,7 @@ public class UserMainPage{
             // ErrorMsgLabel.setText("Database Connection Failed!");
             return;
         }
-        ObservableList<Movie> movies = FXCollections.observableArrayList();
+        ObservableList<Object> movies = FXCollections.observableArrayList();
         ResultSet rs = this.db.executeQuery(query);
         while(rs.next()){
             int movie_id = rs.getInt("movie_id");
@@ -100,22 +114,24 @@ public class UserMainPage{
         }
         ListViewScreenings.setItems(movies);
         ListViewScreenings.setOrientation(Orientation.HORIZONTAL);
-        ListViewScreenings.setCellFactory(lv -> new MovieCell());
+        ListViewScreenings.setCellFactory(param -> new CustomCellFactory1("Movie", ListViewScreenings));
         ListViewScreenings.getSelectionModel().selectedItemProperty().addListener((obs, oldMovie, newMovie) -> {
-            ObservableList<Screening> screening_list = FXCollections.observableArrayList();
-            Movie newMovieobj = (Movie)newMovie;
-            int movie_id = newMovieobj.getId();
-            String query1 = "Select * from mst_screenings where movie_id = "+movie_id+";";
-            if(this.db == null)this.db = new DBConnection();
             try{
-                ResultSet rs1 = this.db.executeQuery(query1);
-                while(rs1.next()){
-                    screening_list.add(new Screening(rs1.getInt("screening_id"),rs1.getInt("movie_id"),rs1.getString("screen_number"),rs1.getString("show_time"),rs1.getInt("available_seats")));
-                }
-            }catch(SQLException e){e.printStackTrace();}
-            lv1.setItems(screening_list);
-            lv1.setCellFactory(param -> new ScreeningCell());
-            fp1.setVisible(true);
+                ObservableList<Screening> screening_list = FXCollections.observableArrayList();
+                Movie newMovieobj = (Movie)newMovie;
+                int movie_id = newMovieobj.getId();
+                String query1 = "Select * from mst_screenings where movie_id = "+movie_id+";";
+                if(this.db == null)this.db = new DBConnection();
+                try{
+                    ResultSet rs1 = this.db.executeQuery(query1);
+                    while(rs1.next()){
+                        screening_list.add(new Screening(rs1.getInt("screening_id"),rs1.getInt("movie_id"),rs1.getString("screen_number"),rs1.getString("show_time"),rs1.getInt("available_seats")));
+                    }
+                }catch(SQLException e){e.printStackTrace();}
+                lv1.setItems(screening_list);
+                lv1.setCellFactory(param -> new ScreeningCell());
+                fp1.setVisible(true);
+            }catch(NullPointerException e){}
         });
         bt1.setOnAction(event->{
             BookTickect();
@@ -160,29 +176,35 @@ public class UserMainPage{
         tf1.setText("");
         // go to my Bookings
     }
-}
+    public void showPastBookings() throws SQLException{
+        lb1.setText("Past Bookings");
+        lb2.setText("");
+        fp1.setVisible(false);
 
-class MovieCell extends ListCell<Movie> {
-    @Override
-    protected void updateItem(Movie movie, boolean empty) {
-        super.updateItem(movie, empty);
-
-        if (empty || movie == null) {
-            setGraphic(null);
-        } else {
-            ImageView imageView = new ImageView(new Image(movie.getImageUrl(), 100, 150, true, true));
-            Text title = new Text(movie.getTitle());
-            Text duration = new Text("⏳ " + movie.getDuration());
-            Text rating = new Text("⭐ " + movie.getRating());
-            VBox textContainer = new VBox(title, duration, rating);
-            textContainer.setSpacing(5);
-            VBox movieBox = new VBox(imageView, textContainer);
-            movieBox.setSpacing(10);
-            movieBox.setStyle("-fx-alignment: center;");
-            setGraphic(movieBox);
+        String query = "SELECT * FROM mst_bookings join mst_screenings on mst_bookings.screening_id = mst_screenings.screening_id join mst_movies on mst_movies.movie_id = mst_screenings.movie_id WHERE user_id = "+this.mst_usr_id+";";
+        System.out.println(query);
+        if(this.db == null)this.db = new DBConnection();
+        if(this.db == null){
+            // ErrorMsgLabel.setText("Database Connection Failed!");
+            return;
         }
+        ObservableList<Object> bookings = FXCollections.observableArrayList();
+        ResultSet rs = this.db.executeQuery(query);
+        while(rs.next()){
+            int booking_id = rs.getInt("booking_id");
+            String booking_date = rs.getString("booking_date");
+            int seats_booked = rs.getInt("seats_booked");
+            String screen_number = rs.getString("screen_number");
+            String show_time = rs.getString("show_time");
+            String title = rs.getString("title");
+            bookings.add(new Bookings(booking_id, booking_date, seats_booked, screen_number, show_time, title));
+        }
+        ListViewScreenings.getSelectionModel().clearSelection();
+        ListViewScreenings.setItems(bookings);
+        ListViewScreenings.setOrientation(Orientation.VERTICAL);
     }
 }
+
 class ScreeningCell extends ListCell<Screening> {
     @Override
     protected void updateItem(Screening screening, boolean empty) {
@@ -201,4 +223,59 @@ class ScreeningCell extends ListCell<Screening> {
         }
     }
 }
+class Bookings{
+    int booking_id;
+    String booking_date;
+    int seats_booked;
+    String screen_number;
+    String show_time;
+    String title;
+    public Bookings(int booking_id, String booking_date, int seats_booked, String screen_number, String show_time, String title){
+        this.booking_id = booking_id;
+        this.booking_date = booking_date;
+        this.seats_booked = seats_booked;
+        this.screen_number = screen_number;
+        this.show_time = show_time;
+        this.title = title;
+    }
+}
 
+class CustomCellFactory1 extends ListCell<Object>{
+    private String type;
+    private ListView<Object> parentListView;
+    public CustomCellFactory1(String type, ListView<Object> listView){
+        this.type = type;
+        this.parentListView = listView;
+    }
+    @Override
+    protected void updateItem(Object item, boolean empty){
+        super.updateItem(item, empty);
+        if(empty || item == null){
+            setGraphic(null);
+            return;
+        }
+        if(item instanceof Movie){
+            Movie movie = (Movie)item;
+            ImageView imageView = new ImageView(new Image(movie.getImageUrl(), 100, 150, true, true));
+            Text title = new Text(movie.getTitle());
+            Text duration = new Text("⏳ " + movie.getDuration());
+            Text rating = new Text("⭐ " + movie.getRating());
+            VBox textContainer = new VBox(title, duration, rating);
+            textContainer.setSpacing(5);
+            VBox movieBox = new VBox(imageView, textContainer);
+            movieBox.setSpacing(10);
+            movieBox.setStyle("-fx-alignment: center;");
+            setGraphic(movieBox);
+        }else if(item instanceof Bookings){
+            Bookings booking = (Bookings)item;
+            Label booking_id = new Label(String.valueOf(booking.booking_id));
+            Label booking_date = new Label(booking.booking_date);
+            Label seats_booked = new Label(String.valueOf(booking.seats_booked));
+            Label screen_number = new Label(booking.screen_number);
+            Label show_time = new Label(booking.show_time);
+            Label title = new Label(booking.title);
+            HBox hbox = new HBox(25,booking_id,booking_date,seats_booked,screen_number,show_time,title);
+            setGraphic(hbox);
+        }
+    }
+}

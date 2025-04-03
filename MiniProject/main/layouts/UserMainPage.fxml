@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="410.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="layouts.UserMainPage">
+<HBox fx:id="hb1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="410.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="layouts.UserMainPage">
    <children>
       <VBox prefHeight="400.0" prefWidth="140.0">
          <children>
@@ -31,7 +31,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10px; -fx-cursor: pointer;" text="Book Tickets">
+            <Label alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#LoadScreenings" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10px; -fx-cursor: pointer;" text="Book Tickets">
                <font>
                   <Font size="14.0" />
                </font>
@@ -39,7 +39,7 @@
                   <Insets left="7.5" top="130.0" />
                </VBox.margin>
             </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10px; -fx-cursor: pointer;" text="Past Bookings">
+            <Label alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#showPastBookings" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10px; -fx-cursor: pointer;" text="Past Bookings">
                <font>
                   <Font size="14.0" />
                </font>
@@ -58,14 +58,14 @@
          </children>
       </VBox>
       <Separator orientation="VERTICAL" prefHeight="200.0" />
-      <FlowPane prefHeight="200.0" prefWidth="200.0">
+      <FlowPane fx:id="fp2" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <Label alignment="TOP_CENTER" prefHeight="35.0" prefWidth="454.0" text="Book Tickets">
+            <Label fx:id="lb1" alignment="TOP_CENTER" prefHeight="35.0" prefWidth="454.0" text="Book Tickets">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Label prefHeight="20.0" prefWidth="448.0" text="Current Screenings:">
+            <Label fx:id="lb2" prefHeight="20.0" prefWidth="448.0" text="Current Screenings:">
                <font>
                   <Font size="14.0" />
                </font>

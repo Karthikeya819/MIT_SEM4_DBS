@@ -1,0 +1,36 @@
+Login Procedure
+
+DECLARE
+  v_username VARCHAR2(50) := '&Enter_Username';
+  v_password VARCHAR2(50) := '&Enter_Password';
+  v_user_id NUMBER;
+  v_role NUMBER;
+BEGIN
+  user_login(v_username, v_password, v_user_id, v_role);
+
+  IF v_user_id IS NOT NULL THEN
+    DBMS_OUTPUT.PUT_LINE('Login successful!');
+    DBMS_OUTPUT.PUT_LINE('User ID: ' || v_user_id);
+    DBMS_OUTPUT.PUT_LINE('Role: ' || v_role);
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Invalid username or password.');
+  END IF;
+END;
+/
+
+Screening ID
+
+DECLARE
+  v_screening_id NUMBER := &Enter_Screening_ID;
+  v_seats NUMBER;
+BEGIN
+  v_seats := get_available_seats(v_screening_id);
+
+  IF v_seats = -1 THEN
+    DBMS_OUTPUT.PUT_LINE('No screening found with the given ID.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Available seats: ' || v_seats);
+  END IF;
+END;
+/
+

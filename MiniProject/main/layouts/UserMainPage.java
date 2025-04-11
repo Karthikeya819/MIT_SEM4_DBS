@@ -175,6 +175,7 @@ public class UserMainPage{
         }
         tf1.setText("");
         // go to my Bookings
+        showPastBookings();
     }
     public void showPastBookings() throws SQLException{
         lb1.setText("Past Bookings");
